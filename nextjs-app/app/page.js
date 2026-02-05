@@ -8,14 +8,9 @@ export default function Home() {
   const [showContent, setShowContent] = useState(true);
 
   return (
-    // FIX 1: Changed 'h-screen' to 'min-h-screen' so it can grow if needed.
-    // FIX 2: Added 'overflow-x-hidden' to prevent horizontal scrolling.
     <main className="relative min-h-screen w-full overflow-x-hidden bg-black text-white">
-      {/* LAYER 1: Background Images */}
-      {/* FIX 3: Changed 'absolute' to 'fixed' so background stays put when scrolling */}
+      {/* --- BACKGROUND IMAGES --- */}
       <div className="fixed inset-0 z-0">
-        {/* MOBILE IMAGE (Visible only on small screens) */}
-        {/* Ensure you have 'hero-mobile.png' in your public folder */}
         <div className="block md:hidden h-full w-full relative">
           <Image
             src="/mobilehero.png"
@@ -25,12 +20,9 @@ export default function Home() {
             priority
           />
         </div>
-
-        {/* DESKTOP IMAGE (Visible only on medium screens and up) */}
-        {/* Ensure you have 'hero-desktop.png' in your public folder */}
         <div className="hidden md:block h-full w-full relative">
           <Image
-            src="/desktophero.png"
+            src="/dskhero.png"
             alt="Background Desktop"
             fill
             className="object-cover object-center"
@@ -39,16 +31,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* LAYER 2: Dark Overlay */}
-      {/* FIX 4: Changed 'absolute' to 'fixed' to match the background */}
+      {/* --- DARK OVERLAY --- */}
       <div
         className={`fixed inset-0 z-10 bg-black transition-opacity duration-700 ease-in-out ${
           showContent ? "opacity-60" : "opacity-0"
         }`}
       />
 
-      {/* LAYER 3: Main Content */}
-      {/* FIX 5: Added 'min-h-screen' and 'py-10' (padding) to prevent text overlap on short screens */}
+      {/* --- MAIN CONTENT WRAPPER --- */}
       <div
         className={`relative z-20 flex flex-col min-h-screen justify-between py-10 transition-all duration-700 ease-in-out ${
           showContent
@@ -68,8 +58,13 @@ export default function Home() {
           </button>
         </header>
 
-        {/* Center Text */}
-        <section className="flex flex-col items-center justify-center text-center px-4 my-8">
+        {/* --- CENTER TEXT SECTION (Updated) --- */}
+        {/* md:ml-auto -> Pushes container to the right
+            md:w-1/2   -> Limits width to 50% so it doesn't cover the left image
+            md:items-end -> Aligns everything to the right edge
+            md:pr-16   -> Adds padding so it doesn't touch the screen edge
+        */}
+        <section className="flex flex-col items-center justify-center text-center px-4 my-8 md:items-end md:text-right md:ml-auto md:w-1/2 md:pr-16">
           <h1 className="text-3xl md:text-6xl lg:text-8xl font-display font-bold tracking-tighter uppercase mb-6 drop-shadow-2xl">
             Website Under <br className="hidden md:block" /> Construction
           </h1>
@@ -93,8 +88,7 @@ export default function Home() {
         </footer>
       </div>
 
-      {/* LAYER 4: Toggle Button */}
-      {/* FIX 6: Changed 'absolute' to 'fixed' so it stays visible while scrolling */}
+      {/* --- TOGGLE BUTTON --- */}
       <button
         onClick={() => setShowContent(!showContent)}
         className="fixed bottom-8 right-8 z-50 p-3 rounded-full border border-white/20 hover:bg-white/10 text-white/70 hover:text-white transition-all backdrop-blur-sm cursor-pointer"
