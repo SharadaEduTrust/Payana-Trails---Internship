@@ -1,47 +1,87 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Home() {
   const [showContent, setShowContent] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showLaunching, setShowLaunching] = useState(false);
+  const videoRef = useRef(null);
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+    }
+  };
+
+  const handleVideoEnd = () => {
+    setShowLaunching(true);
+
+    setTimeout(() => {
+      setShowLaunching(false);
+
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.play();
+        }
+      }, 500);
+    }, 3000);
+  };
 
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden bg-black text-white">
-      {/* --- BACKGROUND IMAGES --- */}
-      <div className="fixed inset-0 z-0">
-        <div className="block md:hidden h-full w-full relative">
-          <Image
-            src="/mobilehero.png"
-            alt="Background Mobile"
-            fill
-            className="object-cover object-center"
-            priority
+      {/* --- BACKGROUND VIDEO --- */}
+      <div className="fixed inset-0 z-0 bg-black flex items-center justify-center overflow-hidden">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted={isMuted}
+          playsInline
+          onEnded={handleVideoEnd}
+          className={`object-cover object-center w-full h-full transition-all duration-1000 ease-in-out ${
+            showLaunching
+              ? "scale-105 opacity-40 blur-sm"
+              : "scale-100 opacity-100 blur-0"
+          }`}
+        >
+          {/* Desktop Video */}
+          <source
+            src="/dskhero.mp4"
+            type="video/mp4"
+            media="(min-width: 768px)"
           />
-        </div>
-        <div className="hidden md:block h-full w-full relative">
-          <Image
-            src="/dskhero.png"
-            alt="Background Desktop"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-        </div>
+          {/* Mobile Video */}
+          <source src="/mobilehero.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
 
       {/* --- DARK OVERLAY --- */}
       <div
         className={`fixed inset-0 z-10 bg-black transition-opacity duration-700 ease-in-out ${
-          showContent ? "opacity-60" : "opacity-0"
+          showContent ? "opacity-30" : "opacity-0"
         }`}
       />
+
+      {/* --- LAUNCHING SOON POPUP --- */}
+      <div
+        className={`fixed inset-0 z-30 flex items-center justify-center transition-all duration-1000 ease-in-out ${
+          showLaunching
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
+      >
+        <h2 className="text-4xl md:text-6xl lg:text-8xl font-display font-bold tracking-widest uppercase text-center drop-shadow-2xl">
+          Launching Soon
+        </h2>
+      </div>
 
       {/* --- MAIN CONTENT WRAPPER --- */}
       <div
         className={`relative z-20 flex flex-col min-h-screen justify-between py-10 transition-all duration-700 ease-in-out ${
-          showContent
+          showContent && !showLaunching
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4 pointer-events-none"
         }`}
@@ -58,28 +98,7 @@ export default function Home() {
           </button>
         </header>
 
-        {/* --- CENTER TEXT SECTION (Updated) --- */}
-        {/* md:ml-auto -> Pushes container to the right
-            md:w-1/2   -> Limits width to 50% so it doesn't cover the left image
-            md:items-end -> Aligns everything to the right edge
-            md:pr-16   -> Adds padding so it doesn't touch the screen edge
-        */}
-        <section className="flex flex-col items-center justify-center text-center px-4 my-8 md:items-end md:text-right md:ml-auto md:w-1/2 md:pr-16">
-          <h1 className="text-3xl md:text-6xl lg:text-8xl font-display font-bold tracking-tighter uppercase mb-6 drop-shadow-2xl">
-            Website Under <br className="hidden md:block" /> Construction
-          </h1>
-          <p className="text-sm md:text-lg tracking-[0.3em] uppercase text-gray-300 mb-12 font-sans font-light">
-            Thoughtfully curated journeys are on their way
-          </p>
-          <div>
-            <Link
-              href="mailto:info@payanatrails.com"
-              className="text-gray-300 hover:text-white transition-colors duration-300 text-md border-b border-transparent hover:border-white pb-1 tracking-widest font-sans"
-            >
-              info@payanatrails.com
-            </Link>
-          </div>
-        </section>
+        <div className="flex-1" />
 
         {/* Footer */}
         <footer className="px-8 md:px-12 w-full flex justify-between items-end text-xs text-gray-400 uppercase tracking-widest font-sans">
@@ -88,7 +107,46 @@ export default function Home() {
         </footer>
       </div>
 
-      {/* --- TOGGLE BUTTON --- */}
+      {/* --- MUTE/UNMUTE BUTTON --- */}
+      <button
+        onClick={toggleMute}
+        className="fixed bottom-8 left-8 z-50 p-3 rounded-full border border-white/20 hover:bg-white/10 text-white/70 hover:text-white transition-all backdrop-blur-sm cursor-pointer"
+        title={isMuted ? "Unmute Audio" : "Mute Audio"}
+      >
+        {isMuted ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M17.25 9.75 19.5 12m0 0 2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6 4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z"
+            />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z"
+            />
+          </svg>
+        )}
+      </button>
+
+      {/* --- HIDE/SHOW CONTENT BUTTON --- */}
       <button
         onClick={() => setShowContent(!showContent)}
         className="fixed bottom-8 right-8 z-50 p-3 rounded-full border border-white/20 hover:bg-white/10 text-white/70 hover:text-white transition-all backdrop-blur-sm cursor-pointer"
